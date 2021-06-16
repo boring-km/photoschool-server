@@ -1,0 +1,6 @@
+node_modules
+.idea
+package-lock.json
+photoserver.iml
+.env
+auth/photo-school-ff482-firebase-adminsdk-klbz1-cc8536e55b.json
