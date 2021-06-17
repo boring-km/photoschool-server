@@ -1,10 +1,10 @@
-const jwtTest = require('./jwt');
+const controller = require('./api');
 const express = require('express');
 
 async function startServer() {
     const app = express();
-    require('./loaders/express').load(app);
-    app.use('/jwt', jwtTest);
+    require('./loaders/load').load(app);
+    app.use('/', controller);
 
     app.listen(process.env.PORT, err => {
        if (err) {

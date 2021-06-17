@@ -1,5 +1,6 @@
 const bodyParser = require('body-parser');
 const cors = require('cors');
+
 function load(app) {
     require('dotenv').config();
 
@@ -9,11 +10,13 @@ function load(app) {
 
     console.log('Express 초기화 완료됨');
 
-    const getConnection = require('./db');
-    getConnection((connection) => {
-       connection.query('select 1 + 1 as solution', (err, results) => {
-           if (err) throw err;
-           console.log(`The solution is: `, results[0].solution);
+    // db connection test
+    let db = require('../loaders/db');
+    db((connection) => {
+
+        connection.query('select 1 + 1 as solution', (err, results) => {
+            if (err) throw err;
+            console.log(results);
         });
     });
 }
