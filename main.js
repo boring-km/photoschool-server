@@ -1,5 +1,6 @@
 const controller = require('./api');
 const express = require('express');
+const logger = require('./config/winston');
 
 async function startServer() {
     const app = express();
@@ -8,10 +9,10 @@ async function startServer() {
 
     app.listen(process.env.PORT, err => {
        if (err) {
-           console.log(err);
+           logger.error(err);
            return;
        }
-        console.log('Node.js 서버 시작됨!');
+       logger.info('Node.js 서버 시작됨!');
     });
 }
 startServer().then(_ => null);
