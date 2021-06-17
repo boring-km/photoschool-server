@@ -1,7 +1,7 @@
 const verify = require('../auth/token_verify');
 
 const serverTest = async (req, res) => {
-    console.log("루트 경로 호출됨222");
+    console.log("루트 경로 호출됨333");
     res.send("8500 서버 OK");
 }
 
