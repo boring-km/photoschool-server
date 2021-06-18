@@ -11,8 +11,7 @@ module.exports = async (req) => {
     const idToken = req.header("x-access-token");
     const email = await firebaseAdmin.auth().verifyIdToken(idToken).then((decodedToken) => decodedToken.email);
     if (email) {
-        console.log(email);
-        return true;
+        return email;
     } else {
         return false;
     }
