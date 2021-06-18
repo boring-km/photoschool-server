@@ -7,7 +7,7 @@ async function startServer() {
     require('./loaders/load').load(app);
     app.use('/', controller);
 
-    app.use(function(req, res, next) {
+    app.use(function(req, res) {
         res.status(500).send({ error: 'Server Error!' });
     });
 
