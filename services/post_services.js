@@ -40,7 +40,7 @@ const getMySchoolName = (email) => {
 const getMyPosts = (email, index) => {
     return new Promise(resolve => {
         db((connection) => {
-            const query = `select P.postId, P.title, P.likes, P.views, P.tbImgURL, P.regTime from Post P, User U where P.writerId = U.userId and U.email = '${email}' limit 10 offset ${index}`;
+            const query = `select P.postId, P.title, P.likes, P.views, P.tbImgURL, P.regTime from Post P, User U where P.writerId = U.userId and U.email = '${email}' limit 10 offset ${index * 10}`;
             logger.debug(query);
             connection.query(query, (err, results) => {
                 if (err) {
@@ -74,7 +74,7 @@ const getPostLengthByApi = (apiId) => {
 const getPostsByApi = (apiId, index) => {
     return new Promise(resolve => {
         db((connection) => {
-            const query = `select postId, title, likes, views, tbImgURL, regTime from Post where apiId = ${apiId} limit 5 offset ${index};`;
+            const query = `select postId, title, likes, views, tbImgURL, regTime from Post where apiId = ${apiId} limit 5 offset ${index * 5};`;
             logger.debug(query);
             connection.query(query, (err, results) => {
                 if (err) {
@@ -108,7 +108,7 @@ const getAwardPostsLength = () => {
 const getAwardPosts = (index) => {
     return new Promise(resolve => {
         db((connection) => {
-            const query = `select P.postId, P.title, P.likes, P.views, P.tbImgURL, P.regTime, A.awardName, A.month from Post P, Award A where P.postId = A.postId limit 10 offset ${index}`;
+            const query = `select P.postId, P.title, P.likes, P.views, P.tbImgURL, P.regTime, A.awardName, A.month from Post P, Award A where P.postId = A.postId limit 10 offset ${index * 10}`;
             logger.debug(query);
             connection.query(query, (err, results) => {
                 if (err) {
@@ -164,7 +164,7 @@ const getAllPostLength = () => {
 const getAllPosts = (index) => {
     return new Promise(resolve => {
         db((connection) => {
-            const query = `select postId, title, likes, views, tbImgURL, regTime from Post limit 10 offset ${index};`
+            const query = `select postId, title, likes, views, tbImgURL, regTime from Post limit 10 offset ${index * 10};`
             logger.debug(query);
             connection.query(query, (err, results) => {
                 if (err) {
