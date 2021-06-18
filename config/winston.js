@@ -1,7 +1,7 @@
 const winston = require('winston');
 const winstonDaily = require('winston-daily-rotate-file');
 
-const logDir = 'logs';  // logs 디렉토리 하위에 로그 파일 저장
+const logDir = '../logs';  // logs 디렉토리 하위에 로그 파일 저장
 const { combine, timestamp, printf } = winston.format;
 
 // Define log format
