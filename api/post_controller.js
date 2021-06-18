@@ -52,10 +52,19 @@ const getAllPosts = async (req, res) => {
     res.json(result);
 }
 
+const searchPosts = async (req, res) => {
+    const { searchType, sortType, searchText, index } = req.params;
+    const result = {
+        posts: await service.getSearchedPosts(searchType, sortType, searchText, index)
+    };
+    res.json(result);
+}
+
 module.exports = {
     getMyActivities,
     getPostsByApiId,
     getAwardPosts,
     getSchoolRank,
-    getAllPosts
+    getAllPosts,
+    searchPosts
 }

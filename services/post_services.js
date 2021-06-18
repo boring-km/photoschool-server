@@ -125,12 +125,11 @@ const getAwardPosts = (index) => {
 const getTop10Schools = () => {
     return new Promise(resolve => {
        db((connection) => {
-           const query = `select (select schoolName from school s where s.schoolId = u.schoolId) as schoolName, sum(p.views) sumOfViews, count(*) sumOfStudents
-                          from post p, user u
-                          where p.writerId = u.userId
-                          group by(u.schoolId)
-                          order by sumOfViews desc, sumOfStudents desc
-                          limit 10;`
+           const query = `select S.region, S.schoolName, sum(P.views) sumOfViews, count(*) sumOfStudents
+                          from post P, user U, school S
+                          where P.writerId = U.userId and U.schoolId = S.schoolId
+                          group by(U.schoolId)
+                          order by sumOfViews desc, sumOfStudents desc limit 10;`
            logger.debug(query);
            connection.query(query, (err, results) => {
                if (err) {
@@ -178,6 +177,64 @@ const getAllPosts = (index) => {
     });
 }
 
+const getSearchedPosts = (searchType, sortType, searchText, index) => {
+    return new Promise(resolve => {
+        db((connection) => {
+            // 검색 타입: 제목, 닉네임, 학교
+            let select = "";
+            switch (searchType) {
+                case "title":
+                    select = `select postId, title, likes, views, tbImgURL, regTime from Post where title like '%${searchText}%'`;
+                    break;
+                case "nickname":
+                    select = `select P.postId, P.title, P.likes, P.views, P.tbImgURL, P.regTime from Post P, User U where P.writerId = U.userId and U.nickname like '%${searchText}%'`;
+                    break;
+                case "school":
+                    select = `select P.postId, P.title, P.likes, P.views, P.tbImgURL, P.regTime from Post P, User U, School S where P.writerId = U.userId and U.schoolId = S.schoolId and S.schoolName like '%${searchText}%'`;
+                    break;
+                default:
+                    resolve(false);
+                    break;
+            }
+
+            // 정렬 타입: 최신순, 오래된 순, 조회 높은 순, 조회 낮은 순, 좋아요 높은 순, 좋아요 낮은 순
+            let sortQuery = "";
+            switch (sortType) {
+                case "new":
+                    sortQuery = "order by regTime desc";
+                    break;
+                case "old":
+                    sortQuery = "order by regTime asc";
+                    break;
+                case "highviews":
+                    sortQuery = "order by views desc";
+                    break;
+                case "lowviews":
+                    sortQuery = "order by views asc";
+                    break;
+                case "highlikes":
+                    sortQuery = "order by likes desc";
+                    break;
+                case "lowlikes":
+                    sortQuery = "order by likes asc";
+                    break;
+                default:
+                    resolve(false);
+                    break;
+            }
+            const query = `${select} ${sortQuery} limit 10 offset ${index};`;
+            logger.debug(query);
+            connection.query(query, (err, results) => {
+                if (err) {
+                    logger.error(`getSearchedPosts: ${err}`);
+                    resolve(false);
+                }
+                resolve(results);
+            });
+            connection.release();
+        });
+    });
+}
 
 module.exports = {
     getMyPostsLength,
@@ -189,5 +246,6 @@ module.exports = {
     getAwardPosts,
     getTop10Schools,
     getAllPostLength,
-    getAllPosts
+    getAllPosts,
+    getSearchedPosts
 }
