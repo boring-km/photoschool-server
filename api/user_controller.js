@@ -8,9 +8,9 @@ const signUpCheck = async (req, res) => {
     if (verifyResult) {
         const result = await service.isIncludeEmail(verifyResult);
         logger.info(`등록여부: ${result}`);
-        res.send({ isRegistered: result });
+        res.json({ isRegistered: result });
     } else {
-        res.status(401).send({ error: 'Token Error!' });
+        res.status(401).json({ error: 'Token Error!' });
     }
 }
 
