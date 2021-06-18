@@ -7,17 +7,55 @@ const getMyActivities = async (req, res) => {
     if (verifyResult) {
         const { index } = req.params;
         const result = {
-            numOfMyPosts: service.getMyPostsLength(verifyResult),
-            posts: service.getMyPosts(verifyResult, index),
-            schoolName: service.getMySchoolName(verifyResult)
+            numOfMyPosts: await service.getMyPostsLength(verifyResult),
+            posts: await service.getMyPosts(verifyResult, index),
+            schoolName: await service.getMySchoolName(verifyResult)
         };
-        logger.info(result);
-        res.send(result);
+        logger.info(`getMyActivities: ${result}`);
+        res.json(result);
     } else {
-        res.status(401).send({ error: 'Token Error!' });
+        res.status(401).json({ error: 'Token Error!' });
     }
 }
 
+const getPostsByApiId = async (req, res) => {
+    const { apiId, index } = req.params;
+    const result = {
+        numOfPosts: await service.getPostLengthByApi(apiId),
+        posts: await service.getPostsByApi(apiId, index)
+    };
+    res.json(result);
+}
+
+const getAwardPosts = async (req, res) => {
+    const { index } = req.params;
+    const result = {
+        numOfPosts: await service.getAwardPostsLength(),
+        posts: await service.getAwardPosts(index)
+    };
+    res.json(result);
+}
+
+const getSchoolRank = async (req, res) => {
+    const result = {
+        topSchools: await service.getTop10Schools()
+    };
+    res.json(result);
+}
+
+const getAllPosts = async (req, res) => {
+    const { index } = req.params;
+    const result = {
+        numOfPosts: await service.getAllPostLength(),
+        posts: await service.getAllPosts(index)
+    };
+    res.json(result);
+}
+
 module.exports = {
-    getMyActivities
+    getMyActivities,
+    getPostsByApiId,
+    getAwardPosts,
+    getSchoolRank,
+    getAllPosts
 }

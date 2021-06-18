@@ -13,5 +13,9 @@ const postController = require('./post_controller');
 
 router.get('/check', userController.signUpCheck);
 router.get('/mypost/:index', postController.getMyActivities);
+router.get('/others/:apiId/:index', postController.getPostsByApiId);
+router.get('/awards/:index', postController.getAwardPosts);
+router.get('/rank', postController.getSchoolRank);
+router.get('/post/all/:index', postController.getAllPosts);
 
 module.exports = router;
