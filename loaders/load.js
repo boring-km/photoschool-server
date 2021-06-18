@@ -1,5 +1,6 @@
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const logger = require('../config/winston');
 
 function load(app) {
     require('dotenv').config();
@@ -8,16 +9,16 @@ function load(app) {
     app.use(bodyParser.urlencoded({extended: true}));
     app.use(cors());
 
-    console.log('Express 초기화 완료됨');
+    logger.debug('Express 초기화 완료됨');
 
     // db connection test
     let db = require('../loaders/db');
     db((connection) => {
-
         connection.query('select 1 + 1 as solution', (err, results) => {
             if (err) throw err;
-            console.log(results);
+            logger.info("DB 연결됨");
         });
+        connection.release();
     });
 }
 

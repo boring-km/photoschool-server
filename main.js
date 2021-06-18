@@ -7,6 +7,10 @@ async function startServer() {
     require('./loaders/load').load(app);
     app.use('/', controller);
 
+    app.use(function(req, res, next) {
+        res.status(500).send({ error: 'Server Error!' });
+    });
+
     app.listen(process.env.PORT, err => {
        if (err) {
            logger.error(err);
