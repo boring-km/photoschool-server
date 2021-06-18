@@ -1,5 +1,7 @@
 const winston = require('winston');
 const winstonDaily = require('winston-daily-rotate-file');
+// 환경변수 세팅
+require('dotenv').config();
 
 const logDir = '../logs';  // logs 디렉토리 하위에 로그 파일 저장
 const { combine, timestamp, printf } = winston.format;
@@ -15,7 +17,7 @@ const logFormat = printf(info => {
  */
 
 const logger = winston.createLogger({
-    level: 'debug',
+    level: process.env.LOG_LEVEL,
     format: combine(
         timestamp({
             format: 'YYYY-MM-DD HH:mm:ss',

@@ -3,7 +3,6 @@ const cors = require('cors');
 const logger = require('../config/winston');
 
 function load(app) {
-    require('dotenv').config();
 
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({extended: true}));
@@ -14,7 +13,7 @@ function load(app) {
     // db connection test
     let db = require('../loaders/db');
     db((connection) => {
-        connection.query('select 1 + 1 as solution', (err, results) => {
+        connection.query('select 1 + 1 as solution', (err, _) => {
             if (err) throw err;
             logger.info("DB 연결됨");
         });
