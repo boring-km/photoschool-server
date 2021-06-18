@@ -16,7 +16,7 @@ async function startServer() {
            logger.error(err);
            return;
        }
-       logger.info('Node.js 서버 시작됨!');
+       logger.debug('Node.js 서버 시작됨!');
     });
 }
 startServer().then(_ => null);

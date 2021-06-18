@@ -13,7 +13,9 @@ const logFormat = printf(info => {
  * Log Level
  * error: 0, warn: 1, info: 2, http: 3, verbose: 4, debug: 5, silly: 6
  */
+
 const logger = winston.createLogger({
+    level: 'debug',
     format: combine(
         timestamp({
             format: 'YYYY-MM-DD HH:mm:ss',
@@ -27,6 +29,15 @@ const logger = winston.createLogger({
             datePattern: 'YYYY-MM-DD',
             dirname: logDir,
             filename: `%DATE%.log`,
+            maxFiles: 30,  // 30일치 로그 파일 저장
+            zippedArchive: true,
+        }),
+        // info 레벨 로그를 저장할 파일 설정
+        new winstonDaily({
+            level: 'debug',
+            datePattern: 'YYYY-MM-DD',
+            dirname: logDir,
+            filename: `%DATE%.debug.log`,
             maxFiles: 30,  // 30일치 로그 파일 저장
             zippedArchive: true,
         }),
