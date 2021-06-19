@@ -13,6 +13,8 @@ const postController = require('./post_controller');
 const schoolController = require('./school_controller');
 
 router.get('/check', userController.signUpCheck);
+router.get('/nickname', userController.getUserNickName);
+
 router.get('/mypost/:index', postController.getMyActivities);
 router.get('/others/:apiId/:index', postController.getPostsByApiId);
 router.get('/awards/:index', postController.getAwardPosts);

@@ -14,6 +14,17 @@ const signUpCheck = async (req, res) => {
     }
 }
 
+const getUserNickName = async (req, res) => {
+    const verifyResult = await verify(req);
+    if (verifyResult) {
+        const result = await service.findNickName(verifyResult);
+        res.json({ nickname: result });
+    } else {
+        res.json(401).json({ error: 'Token Error!' });
+    }
+}
+
 module.exports = {
-    signUpCheck
+    signUpCheck,
+    getUserNickName
 }

@@ -17,6 +17,21 @@ const isIncludeEmail = (email) => {
     })
 }
 
+const findNickName = (email) => {
+    return new Promise(resolve => {
+        db((connection) => {
+            connection.query(`select nickname from User where email = '${email}';`, (err, results) => {
+                if (err) {
+                    logger.error(`findNickName: ${err}`);
+                    resolve(false);
+                }
+                resolve(results[0].nickname);
+            });
+        })
+    });
+}
+
 module.exports = {
-    isIncludeEmail
+    isIncludeEmail,
+    findNickName
 }
