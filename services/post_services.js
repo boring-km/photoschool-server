@@ -236,6 +236,86 @@ const getSearchedPosts = (searchType, sortType, searchText, index) => {
     });
 }
 
+const registerPost = (email, apiId, title) => {
+    return new Promise(resolve => {
+        db((connection) => {
+            let query = `insert into post(apiId, writerId, title, imgURL, tbImgURL)
+                        values(
+                               ${apiId},
+                               (select userId as 'writerId' from User where email = '${email}'),
+                               ${title}, '', '');`;
+            logger.debug(query);
+            connection.query(query, (err, results) => {
+                if (err) {
+                    logger.error(`registerPost: ${err}`);
+                    resolve(false);
+                }
+                resolve(results.insertId);
+            });
+            connection.release();
+        })
+    })
+}
+
+const updateTitle = (email, postId, title) => {
+    return new Promise(resolve => {
+        db((connection) => {
+            const query = `
+                    update Post
+                    set title = '${title}'
+                    where postId = '${postId}' and writerId = (select userId from User where email = '${email}');`;
+            logger.debug(query);
+            connection.query(query, (err, _) => {
+                if (err) {
+                    logger.error(`updateTitle: ${err}`);
+                    resolve(false);
+                }
+                resolve(true);
+            });
+            connection.release();
+        });
+    });
+}
+
+const updateImage = (email, postId, tbImgURL, imgURL) => {
+    return new Promise(resolve => {
+        db((connection) => {
+            const query = `
+                    update Post
+                    set tbImgURL = '${tbImgURL}', imgURL = '${imgURL}'
+                    where postId = '${postId}' and writerId = (select userId from User where email = '${email}');`;
+            logger.debug(query);
+            connection.query(query, (err, _) => {
+                if (err) {
+                    logger.error(`updateImage: ${err}`);
+                    resolve(false);
+                }
+                resolve(true);
+            });
+            connection.release();
+        });
+    });
+}
+
+const deletePost = (email, postId) => {
+    return new Promise(resolve => {
+        db((connection) => {
+            const query = `
+                    delete from Post
+                    where postId = '${postId}' and writerId = (select userId from User where email = '${email}');`;
+            logger.debug(query);
+            connection.query(query, (err, _) => {
+                if (err) {
+                    logger.error(`deletePost: ${err}`);
+                    resolve(false);
+                }
+                resolve(true);
+            });
+            connection.release();
+        });
+    });
+}
+
 module.exports = {
     getMyPostsLength,
     getMySchoolName,
@@ -247,5 +327,9 @@ module.exports = {
     getTop10Schools,
     getAllPostLength,
     getAllPosts,
-    getSearchedPosts
+    getSearchedPosts,
+    registerPost,
+    updateTitle,
+    updateImage,
+    deletePost
 }

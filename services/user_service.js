@@ -20,7 +20,9 @@ const isIncludeEmail = (email) => {
 const findNickName = (email) => {
     return new Promise(resolve => {
         db((connection) => {
-            connection.query(`select nickname from User where email = '${email}';`, (err, results) => {
+            const query = `select nickname from User where email = '${email}';`;
+            logger.debug(query);
+            connection.query(query, (err, results) => {
                 if (err) {
                     logger.error(`findNickName: ${err}`);
                     resolve(false);
@@ -31,7 +33,24 @@ const findNickName = (email) => {
     });
 }
 
+const insertUser = (email, nickname, schoolId) => {
+    return new Promise(resolve => {
+        db((connection) => {
+            const query = `insert into User(email, nickname, schoolId) values('${email}', '${nickname}', ${schoolId});`;
+            logger.debug(query);
+            connection.query(query, (err, _) => {
+                if (err) {
+                    logger.error(`insertUser: ${err}`);
+                    resolve(false);
+                }
+                resolve(true);
+            });
+        })
+    })
+}
+
 module.exports = {
     isIncludeEmail,
-    findNickName
+    findNickName,
+    insertUser
 }

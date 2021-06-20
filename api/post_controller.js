@@ -60,11 +60,59 @@ const searchPosts = async (req, res) => {
     res.json(result);
 }
 
+const registerPost = async (req, res) => {
+    const verifyResult = await verify(req);
+    const { apiId, title } = req.body;
+    if (verifyResult) {
+        const result = { result: await service.registerPost(verifyResult, apiId, title) };
+        res.json(result);
+    } else {
+        res.status(401).json({ error: 'Token Error!' });
+    }
+}
+
+const updateTitle = async (req, res) => {
+    const verifyResult = await verify(req);
+    const { postId, title } = req.body;
+    if (verifyResult) {
+        const result = { result: await service.updateTitle(verifyResult, postId, title) };
+        res.json(result);
+    } else {
+        res.status(401).json({ error: 'Token Error!' });
+    }
+}
+
+const updateImage = async (req, res) => {
+    const verifyResult = await verify(req);
+    const { postId, tbImgURL, imgURL } = req.body;
+    if (verifyResult) {
+        const result = { result: await service.updateImage(verifyResult, postId, tbImgURL, imgURL) };
+        res.json(result);
+    } else {
+        res.status(401).json({ error: 'Token Error!' });
+    }
+}
+
+const deletePost = async (req, res) => {
+    const verifyResult = await verify(req);
+    const { postId } = req.params;
+    if (verifyResult) {
+        const result = { result: await service.deletePost(verifyResult, postId) };
+        res.json(result);
+    } else {
+        res.status(401).json({ error: 'Token Error!' });
+    }
+}
+
 module.exports = {
     getMyActivities,
     getPostsByApiId,
     getAwardPosts,
     getSchoolRank,
     getAllPosts,
-    searchPosts
+    searchPosts,
+    registerPost,
+    updateTitle,
+    updateImage,
+    deletePost
 }

@@ -12,16 +12,24 @@ const userController = require('./user_controller');
 const postController = require('./post_controller');
 const schoolController = require('./school_controller');
 
+// User
 router.get('/check', userController.signUpCheck);
 router.get('/nickname', userController.getUserNickName);
+router.post('/register/user', userController.registerUser);
 
+// Post
 router.get('/mypost/:index', postController.getMyActivities);
 router.get('/others/:apiId/:index', postController.getPostsByApiId);
 router.get('/awards/:index', postController.getAwardPosts);
 router.get('/rank', postController.getSchoolRank);
 router.get('/post/all/:index', postController.getAllPosts);
 router.get('/post/:searchType/:sortType/:searchText/:index', postController.searchPosts);
+router.post('/register/post', postController.registerPost);
+router.patch('/update/title', postController.updateTitle);
+router.patch('/update/image', postController.updateImage);
+router.delete('/delete/:postId', postController.deletePost);
 
+// School
 router.get('/school/:schoolName', schoolController.searchSchool);
 
 module.exports = router;

@@ -24,7 +24,19 @@ const getUserNickName = async (req, res) => {
     }
 }
 
+const registerUser = async (req, res) => {
+    const verifyResult = await verify(req);
+    const { nickname, schoolId } = req.body;
+    if (verifyResult) {
+        const result = await service.insertUser(verifyResult, nickname, schoolId);
+        res.json({ result: result });
+    } else {
+        res.json(401).json({ error: 'Token Error!' });
+    }
+}
+
 module.exports = {
     signUpCheck,
-    getUserNickName
+    getUserNickName,
+    registerUser
 }
