@@ -26,6 +26,7 @@ router.get('/post/all/:index', postController.getAllPosts);
 router.get('/post/:searchType/:sortType/:searchText/:index', postController.searchPosts);
 router.get('/post/detail/:postId', postController.searchDetail);
 router.post('/register/post', postController.registerPost);
+router.post('/post/like', postController.likeOrNotLikePost);
 router.patch('/update/title', postController.updateTitle);
 router.patch('/update/image', postController.updateImage);
 router.delete('/delete/:postId', postController.deletePost);

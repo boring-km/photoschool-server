@@ -256,7 +256,7 @@ const searchDetailPost = (postId) => {
                     logger.error(`searchDetailPost: ${err}`);
                     resolve(false);
                 }
-                resolve(results);
+                resolve(results[0]);
             });
             connection.release();
         })
@@ -281,7 +281,32 @@ const registerPost = (email, apiId, title) => {
             });
             connection.release();
         })
-    })
+    });
+}
+
+const likeOrNotLikePost = (email, postId) => {
+    return new Promise(resolve => {
+       db((connection) => {
+           // likeOrNotLikePost 프로시저 호출
+           const firstQuery = `call likeOrNotLikePost('${email}', ${postId}, @isLikedBy${postId});`;
+           logger.debug(firstQuery);
+           connection.query(firstQuery, (err, _) => {
+               if (err) {
+                   logger.error(`likeOrNotLikePost: ${err}`);
+                   resolve(false);
+               }
+           });
+           const secondQuery = `select @isLikedBy${postId} as 'result';`;
+           logger.debug(secondQuery);
+           connection.query(secondQuery, (err, results) => {
+              if (err) {
+                  logger.error(`likeOrNotLikePost result: ${err}`);
+                  resolve(false);
+              }
+              resolve(results[0].result);
+           });
+       });
+    });
 }
 
 const updateTitle = (email, postId, title) => {
@@ -357,6 +382,7 @@ module.exports = {
     getSearchedPosts,
     searchDetailPost,
     registerPost,
+    likeOrNotLikePost,
     updateTitle,
     updateImage,
     deletePost

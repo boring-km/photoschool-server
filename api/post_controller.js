@@ -79,6 +79,17 @@ const registerPost = async (req, res) => {
     }
 }
 
+const likeOrNotLikePost = async (req, res) => {
+    const verifyResult = await verify(req);
+    const { postId } = req.body;
+    if (verifyResult) {
+        const result = { result: (await service.likeOrNotLikePost(verifyResult, postId)) === 1 };
+        res.json(result);
+    } else {
+        res.json(401).json({ error: 'Token Error!' });
+    }
+}
+
 const updateTitle = async (req, res) => {
     const verifyResult = await verify(req);
     const { postId, title } = req.body;
@@ -121,6 +132,7 @@ module.exports = {
     searchPosts,
     searchDetail,
     registerPost,
+    likeOrNotLikePost,
     updateTitle,
     updateImage,
     deletePost
