@@ -60,6 +60,14 @@ const searchPosts = async (req, res) => {
     res.json(result);
 }
 
+const searchDetail = async (req, res) => {
+    const { postId } = req.params;
+    const result = {
+        post: await service.searchDetailPost(postId)
+    };
+    res.json(result);
+}
+
 const registerPost = async (req, res) => {
     const verifyResult = await verify(req);
     const { apiId, title } = req.body;
@@ -111,6 +119,7 @@ module.exports = {
     getSchoolRank,
     getAllPosts,
     searchPosts,
+    searchDetail,
     registerPost,
     updateTitle,
     updateImage,

@@ -236,6 +236,33 @@ const getSearchedPosts = (searchType, sortType, searchText, index) => {
     });
 }
 
+const searchDetailPost = (postId) => {
+    return new Promise(resolve => {
+        db((connection) => {
+            let firstQuery = `update Post set views = views + 1 where postId = ${postId};`;
+            logger.debug(firstQuery);
+            connection.query(firstQuery, (err, _) => {
+                if (err) {
+                    logger.error(`searchDetailPost views: ${err}`);
+                    resolve(false);
+                }
+                logger.debug('조회수 + 1');
+            });
+
+            let secondQuery = `select title, (select nickname from User where userId = P.writerId) as 'nickname', apiId, likes, views, imgURL, regTime from Post P where postId = ${postId};`;
+            logger.debug(secondQuery);
+            connection.query(secondQuery, (err, results) => {
+                if (err) {
+                    logger.error(`searchDetailPost: ${err}`);
+                    resolve(false);
+                }
+                resolve(results);
+            });
+            connection.release();
+        })
+    })
+}
+
 const registerPost = (email, apiId, title) => {
     return new Promise(resolve => {
         db((connection) => {
@@ -328,6 +355,7 @@ module.exports = {
     getAllPostLength,
     getAllPosts,
     getSearchedPosts,
+    searchDetailPost,
     registerPost,
     updateTitle,
     updateImage,

@@ -24,6 +24,7 @@ router.get('/awards/:index', postController.getAwardPosts);
 router.get('/rank', postController.getSchoolRank);
 router.get('/post/all/:index', postController.getAllPosts);
 router.get('/post/:searchType/:sortType/:searchText/:index', postController.searchPosts);
+router.get('/post/detail/:postId', postController.searchDetail);
 router.post('/register/post', postController.registerPost);
 router.patch('/update/title', postController.updateTitle);
 router.patch('/update/image', postController.updateImage);
