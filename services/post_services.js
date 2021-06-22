@@ -108,7 +108,7 @@ const getAwardPostsLength = () => {
 const getAwardPosts = (index) => {
     return new Promise(resolve => {
         db((connection) => {
-            const query = `select P.postId, P.title, P.likes, P.views, P.tbImgURL, P.regTime, A.awardName, A.month from Post P, Award A where P.postId = A.postId limit 10 offset ${index * 10}`;
+            const query = `select P.postId, P.title, P.likes, P.views, (select nickname from User where userId = P.writerId) as 'nickname', P.tbImgURL, P.regTime, A.awardName, A.month from Post P, Award A where P.postId = A.postId limit 10 offset ${index * 10}`;
             logger.debug(query);
             connection.query(query, (err, results) => {
                 if (err) {
@@ -163,7 +163,7 @@ const getAllPostLength = () => {
 const getAllPosts = (index) => {
     return new Promise(resolve => {
         db((connection) => {
-            const query = `select postId, title, likes, views, tbImgURL, regTime from Post limit 10 offset ${index * 10};`
+            const query = `select postId, title, (select nickname from User where userId = P.writerId) as 'nickname', likes, views, tbImgURL, regTime from Post P limit 10 offset ${index * 10};`
             logger.debug(query);
             connection.query(query, (err, results) => {
                 if (err) {
@@ -184,13 +184,13 @@ const getSearchedPosts = (searchType, sortType, searchText, index) => {
             let select = "";
             switch (searchType) {
                 case "title":
-                    select = `select postId, title, likes, views, tbImgURL, regTime from Post where title like '%${searchText}%'`;
+                    select = `select postId, title, (select nickname from User where userId = P.writerId) as 'nickname', likes, views, tbImgURL, regTime from Post P where title like '%${searchText}%'`;
                     break;
                 case "nickname":
-                    select = `select P.postId, P.title, P.likes, P.views, P.tbImgURL, P.regTime from Post P, User U where P.writerId = U.userId and U.nickname like '%${searchText}%'`;
+                    select = `select P.postId, P.title, U.nickname, P.likes, P.views, P.tbImgURL, P.regTime from Post P, User U where P.writerId = U.userId and U.nickname like '%${searchText}%'`;
                     break;
                 case "school":
-                    select = `select P.postId, P.title, P.likes, P.views, P.tbImgURL, P.regTime from Post P, User U, School S where P.writerId = U.userId and U.schoolId = S.schoolId and S.schoolName like '%${searchText}%'`;
+                    select = `select P.postId, P.title, U.nickname, P.likes, P.views, P.tbImgURL, P.regTime from Post P, User U, School S where P.writerId = U.userId and U.schoolId = S.schoolId and S.schoolName like '%${searchText}%'`;
                     break;
                 default:
                     resolve(false);
