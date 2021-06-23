@@ -9,7 +9,7 @@ const searchSchoolName = (schoolName) => {
             connection.query(query, (err, results) => {
                 if (err) {
                     logger.error(`searchSchoolName: ${err}`);
-                    resolve(false);
+                    throw err;
                 }
                 resolve(results);
             });
