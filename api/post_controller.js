@@ -1,5 +1,4 @@
 const verify = require('../auth/token_verify');
-const logger = require('../config/winston');
 const service = require('../services/post_services');
 
 const getMyActivities = async (req, res) => {
@@ -7,11 +6,9 @@ const getMyActivities = async (req, res) => {
     if (verifyResult) {
         const { index } = req.params;
         const result = {
-            numOfMyPosts: await service.getMyPostsLength(verifyResult),
             posts: await service.getMyPosts(verifyResult, index),
             schoolName: await service.getMySchoolName(verifyResult)
         };
-        logger.info(`getMyActivities: ${result}`);
         res.json(result);
     } else {
         res.status(401).json({ error: 'Token Error!' });
@@ -21,7 +18,6 @@ const getMyActivities = async (req, res) => {
 const getPostsByApiId = async (req, res) => {
     const { apiId, index } = req.params;
     const result = {
-        numOfPosts: await service.getPostLengthByApi(apiId),
         posts: await service.getPostsByApi(apiId, index)
     };
     res.json(result);
@@ -30,7 +26,6 @@ const getPostsByApiId = async (req, res) => {
 const getAwardPosts = async (req, res) => {
     const { index } = req.params;
     const result = {
-        numOfPosts: await service.getAwardPostsLength(),
         posts: await service.getAwardPosts(index)
     };
     res.json(result);
@@ -46,7 +41,6 @@ const getSchoolRank = async (req, res) => {
 const getAllPosts = async (req, res) => {
     const { index } = req.params;
     const result = {
-        numOfPosts: await service.getAllPostLength(),
         posts: await service.getAllPosts(index)
     };
     res.json(result);

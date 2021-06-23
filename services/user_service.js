@@ -4,7 +4,9 @@ const logger = require('../config/winston');
 const isIncludeEmail = (email) => {
     return new Promise(resolve => {
         db((connection) => {
-            connection.query(`select count(*) as 'count' from User where email = '${email}'`, (err, results) => {
+            const query = `select count(*) as 'count' from User where email = '${email}'`;
+            logger.debug(query);
+            connection.query(query, (err, results) => {
                 if (err) {
                     logger.error(`isIncludeEmail: ${err}`);
                     resolve(false)
