@@ -38,7 +38,7 @@ const getPostsByApi = (apiId, index) => new Promise((resolve) => {
   db((connection) => {
     const query = `select P.postId, P.title, U.nickname, P.likes, P.views, P.tbImgURL, P.regTime
         from Post P, User U 
-        where apiId = ${apiId} and P.writerId = U.userId 
+        where apiId = '${apiId}' and P.writerId = U.userId 
         limit 5 offset ${index * 5};`;
     logger.debug(query);
     connection.query(query, (err, results) => {
@@ -193,7 +193,7 @@ const searchDetailPost = (postId) => new Promise((resolve) => {
 const registerPost = (email, apiId, title) => new Promise((resolve) => {
   db((connection) => {
     const query = `insert into post(apiId, writerId, title, imgURL, tbImgURL)
-                        values(${apiId}, (select userId 'writerId' from User where email = '${email}'), '${title}', '', '');`;
+                        values('${apiId}', (select userId 'writerId' from User where email = '${email}'), '${title}', '', '');`;
     logger.debug(query);
     connection.query(query, (err, results) => {
       if (err) {
