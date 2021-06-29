@@ -92,6 +92,21 @@ const searchDetail = async (req, res) => {
   }
 };
 
+const checkLike = async (req, res) => {
+  try {
+    const verifyResult = await verify(req);
+    const { postId } = req.params;
+    if (verifyResult) {
+      const result = { result: await service.checkDoLikeBefore(verifyResult, postId) };
+      res.json(result);
+    } else {
+      res.json(401).json({ error: 'Token Error!' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Server Error!' });
+  }
+};
+
 const registerPost = async (req, res) => {
   try {
     const verifyResult = await verify(req);
@@ -175,6 +190,7 @@ module.exports = {
   getAllPosts,
   searchPosts,
   searchDetail,
+  checkLike,
   registerPost,
   likeOrNotLikePost,
   updateTitle,

@@ -175,9 +175,9 @@ const searchDetailPost = (postId) => new Promise((resolve) => {
       }
     });
 
-    const secondQuery = `select P.title, U.nickname, P.apiId, P.likes, P.views, P.imgURL, P.regTime
-        from Post P, User U
-        where P.writerId = U.userId and postId = ${postId};`;
+    const secondQuery = `select P.title, U.nickname, P.apiId, P.likes, P.views, P.imgURL, P.regTime, S.region, S.schoolName
+        from Post P, User U, School S
+        where P.writerId = U.userId and U.schoolId = S.schoolId and postId = ${postId};`;
     logger.debug(secondQuery);
     connection.query(secondQuery, (err, results) => {
       if (err) {
@@ -187,6 +187,20 @@ const searchDetailPost = (postId) => new Promise((resolve) => {
       resolve(results[0]);
     });
     connection.release();
+  });
+});
+
+const checkDoLikeBefore = (email, postId) => new Promise((resolve) => {
+  db((connection) => {
+    const query = `select count(*) from User U, LikeRecord L where U.userId = L.userId and U.email = '${email}' and L.postId = '${postId}';`;
+    logger.debug(query);
+    connection.query(query, (err, results) => {
+      if (err) {
+        logger.error(`checkDoLikeBefore: ${err}`);
+        throw err;
+      }
+      resolve(results[0].count === 1);
+    });
   });
 });
 
@@ -317,6 +331,7 @@ module.exports = {
   getAllPosts,
   getSearchedPosts,
   searchDetailPost,
+  checkDoLikeBefore,
   registerPost,
   likeOrNotLikePost,
   updateTitle,
