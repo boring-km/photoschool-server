@@ -21,7 +21,7 @@ const getMyPosts = (email, index) => new Promise((resolve) => {
     const query = `select P.postId, P.title, P.likes, P.views, P.tbImgURL, P.regTime
         from Post P, User U 
         where P.writerId = U.userId and U.email = '${email}'
-        limit 10 offset ${index * 10}`;
+        limit 9 offset ${index * 9}`;
     logger.debug(query);
     connection.query(query, (err, results) => {
       if (err) {
@@ -91,10 +91,10 @@ const getTop10Schools = () => new Promise((resolve) => {
 
 const getAllPosts = (index) => new Promise((resolve) => {
   db((connection) => {
-    const query = `select P.postId, P.title, U.nickname, P.likes, P.views, P.tbImgURL, P.regTime
-        from Post P, User U
-        where P.writerId = U.userId
-        limit 10 offset ${index * 10};`;
+    const query = `select P.postId, P.title, U.nickname, P.likes, P.views, P.tbImgURL, P.regTime, S.schoolName
+        from Post P, User U, School S
+        where P.writerId = U.userId and U.schoolId = S.schoolId
+        limit 9 offset ${index * 9};`;
     logger.debug(query);
     connection.query(query, (err, results) => {
       if (err) {
@@ -113,13 +113,13 @@ const getSearchedPosts = (searchType, sortType, searchText, index) => new Promis
     let select = '';
     switch (searchType) {
       case 'title':
-        select = `select P.postId, P.title, U.nickname, P.likes, P.views, P.tbImgURL, P.regTime from Post P, User U where P.writerId = U.userId and title like '%${searchText}%'`;
+        select = `select P.postId, P.title, U.nickname, P.likes, P.views, P.tbImgURL, P.regTime, S.schoolName from Post P, User U, School S where P.writerId = U.userId and U.schoolId = S.schoolId and title like '%${searchText}%'`;
         break;
       case 'nickname':
-        select = `select P.postId, P.title, U.nickname, P.likes, P.views, P.tbImgURL, P.regTime from Post P, User U where P.writerId = U.userId and U.nickname like '%${searchText}%'`;
+        select = `select P.postId, P.title, U.nickname, P.likes, P.views, P.tbImgURL, P.regTime, S.schoolName from Post P, User U, School S where P.writerId = U.userId and U.schoolId = S.schoolId and U.nickname like '%${searchText}%'`;
         break;
       case 'school':
-        select = `select P.postId, P.title, U.nickname, P.likes, P.views, P.tbImgURL, P.regTime from Post P, User U, School S where P.writerId = U.userId and U.schoolId = S.schoolId and S.schoolName like '%${searchText}%'`;
+        select = `select P.postId, P.title, U.nickname, P.likes, P.views, P.tbImgURL, P.regTime, S.schoolName from Post P, User U, School S where P.writerId = U.userId and U.schoolId = S.schoolId and S.schoolName like '%${searchText}%'`;
         break;
       default:
         resolve(false);
@@ -151,7 +151,7 @@ const getSearchedPosts = (searchType, sortType, searchText, index) => new Promis
         resolve(false);
         break;
     }
-    const query = `${select} ${sortQuery} limit 10 offset ${index * 10};`;
+    const query = `${select} ${sortQuery} limit 9 offset ${index * 9};`;
     logger.debug(query);
     connection.query(query, (err, results) => {
       if (err) {
