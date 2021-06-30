@@ -127,7 +127,7 @@ const likeOrNotLikePost = async (req, res) => {
     const verifyResult = await verify(req);
     const { postId } = req.body;
     if (verifyResult) {
-      const result = { result: (await service.likeOrNotLikePost(verifyResult, postId)) === 1 };
+      const result = { result: await service.likeOrNotLikePost(verifyResult, postId) };
       res.json(result);
     } else {
       res.json(401).json({ error: 'Token Error!' });

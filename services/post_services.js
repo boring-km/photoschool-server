@@ -192,7 +192,7 @@ const searchDetailPost = (postId) => new Promise((resolve) => {
 
 const checkDoLikeBefore = (email, postId) => new Promise((resolve) => {
   db((connection) => {
-    const query = `select count(*) from User U, LikeRecord L where U.userId = L.userId and U.email = '${email}' and L.postId = '${postId}';`;
+    const query = `select count(*) as 'count' from User U, LikeRecord L where U.userId = L.userId and U.email = '${email}' and L.postId = '${postId}';`;
     logger.debug(query);
     connection.query(query, (err, results) => {
       if (err) {
@@ -222,9 +222,21 @@ const registerPost = (email, apiId, title) => new Promise((resolve) => {
 
 const likeOrNotLikePost = (email, postId) => new Promise((resolve) => {
   db((connection) => {
-    // likeOrNotLikePost 프로시저 호출
-    const firstQuery = `call likeOrNotLikePost('${email}', ${postId}, @isLikedBy${postId});`;
+    const firstQuery = `select count(*) as 'count' from User where userId = (select writerId from Post where postId = ${postId}) and email = '${email}';`;
     logger.debug(firstQuery);
+    connection.query(firstQuery, (err, results) => {
+      if (err) {
+        logger.error(`likeOrNotLikePost first: ${err}`);
+        throw err;
+      }
+      const result = results[0].count > 0;
+      if (result) {
+        resolve(false);
+      }
+    });
+    // likeOrNotLikePost 프로시저 호출
+    const secondQuery = `call likeOrNotLikePost('${email}', ${postId}, @isLikedBy${postId});`;
+    logger.debug(secondQuery);
     logger.debug('프로시저 likeOrNotLikePost(\n'
                + '    IN userEmail VARCHAR(254),\n'
                + '    IN likedPostId INT(10),\n'
@@ -254,20 +266,20 @@ const likeOrNotLikePost = (email, postId) => new Promise((resolve) => {
                + '        set result = 0;\n'
                + '    end if;\n'
                + 'end$$');
-    connection.query(firstQuery, (err) => {
+    connection.query(secondQuery, (err) => {
       if (err) {
         logger.error(`likeOrNotLikePost: ${err}`);
         throw err;
       }
     });
-    const secondQuery = `select @isLikedBy${postId} as 'result';`;
-    logger.debug(secondQuery);
-    connection.query(secondQuery, (err, results) => {
+    const thirdQuery = `select @isLikedBy${postId} as 'result';`;
+    logger.debug(thirdQuery);
+    connection.query(thirdQuery, (err) => {
       if (err) {
         logger.error(`likeOrNotLikePost result: ${err}`);
         throw err;
       }
-      resolve(results[0].result);
+      resolve(true);
     });
   });
 });
