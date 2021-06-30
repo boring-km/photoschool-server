@@ -56,8 +56,9 @@ const getAwardPosts = (index) => new Promise((resolve) => {
   db((connection) => {
     const query = `select P.postId, P.title, P.likes, P.views, (select nickname from User where userId = P.writerId) 'nickname', P.tbImgURL, P.regTime, A.awardName, A.month
         from Post P, Award A 
-        where P.postId = A.postId 
-        limit 4 offset ${index * 4}`;
+        where P.postId = A.postId
+        order by A.month desc
+        limit 4 offset ${index * 4};`;
     logger.debug(query);
     connection.query(query, (err, results) => {
       if (err) {
