@@ -18,7 +18,7 @@ const getMySchoolName = (email) => new Promise((resolve) => {
 
 const getMyPosts = (email, index) => new Promise((resolve) => {
   db((connection) => {
-    const query = `select P.postId, P.title, P.likes, P.views, P.tbImgURL, P.regTime
+    const query = `select P.postId, P.title, P.likes, P.views, P.tbImgURL, P.regTime, P.upTime
         from Post P, User U 
         where P.writerId = U.userId and U.email = '${email}'
         limit 9 offset ${index * 9}`;
@@ -36,7 +36,7 @@ const getMyPosts = (email, index) => new Promise((resolve) => {
 
 const getPostsByApi = (apiId, index) => new Promise((resolve) => {
   db((connection) => {
-    const query = `select P.postId, P.title, U.nickname, P.likes, P.views, P.tbImgURL, P.regTime
+    const query = `select P.postId, P.title, U.nickname, P.likes, P.views, P.tbImgURL, P.regTime, P.upTime
         from Post P, User U 
         where apiId = '${apiId}' and P.writerId = U.userId 
         limit 5 offset ${index * 5};`;
@@ -54,7 +54,7 @@ const getPostsByApi = (apiId, index) => new Promise((resolve) => {
 
 const getAwardPosts = (index) => new Promise((resolve) => {
   db((connection) => {
-    const query = `select P.postId, P.title, P.likes, P.views, (select nickname from User where userId = P.writerId) 'nickname', P.tbImgURL, P.regTime, A.awardName, A.month
+    const query = `select P.postId, P.title, P.likes, P.views, (select nickname from User where userId = P.writerId) 'nickname', P.tbImgURL, P.regTime, P.upTime, A.awardName, A.month
         from Post P, Award A 
         where P.postId = A.postId
         order by A.month desc
@@ -92,7 +92,7 @@ const getTop10Schools = () => new Promise((resolve) => {
 
 const getAllPosts = (index) => new Promise((resolve) => {
   db((connection) => {
-    const query = `select P.postId, P.title, U.nickname, P.likes, P.views, P.tbImgURL, P.regTime, S.schoolName
+    const query = `select P.postId, P.title, U.nickname, P.likes, P.views, P.tbImgURL, P.regTime, P.upTime, S.schoolName
         from Post P, User U, School S
         where P.writerId = U.userId and U.schoolId = S.schoolId
         limit 9 offset ${index * 9};`;
@@ -114,13 +114,13 @@ const getSearchedPosts = (searchType, sortType, searchText, index) => new Promis
     let select = '';
     switch (searchType) {
       case 'title':
-        select = `select P.postId, P.title, U.nickname, P.likes, P.views, P.tbImgURL, P.regTime, S.schoolName from Post P, User U, School S where P.writerId = U.userId and U.schoolId = S.schoolId and title like '%${searchText}%'`;
+        select = `select P.postId, P.title, U.nickname, P.likes, P.views, P.tbImgURL, P.regTime, P.upTime, S.schoolName from Post P, User U, School S where P.writerId = U.userId and U.schoolId = S.schoolId and title like '%${searchText}%'`;
         break;
       case 'nickname':
-        select = `select P.postId, P.title, U.nickname, P.likes, P.views, P.tbImgURL, P.regTime, S.schoolName from Post P, User U, School S where P.writerId = U.userId and U.schoolId = S.schoolId and U.nickname like '%${searchText}%'`;
+        select = `select P.postId, P.title, U.nickname, P.likes, P.views, P.tbImgURL, P.regTime, P.upTime, S.schoolName from Post P, User U, School S where P.writerId = U.userId and U.schoolId = S.schoolId and U.nickname like '%${searchText}%'`;
         break;
       case 'school':
-        select = `select P.postId, P.title, U.nickname, P.likes, P.views, P.tbImgURL, P.regTime, S.schoolName from Post P, User U, School S where P.writerId = U.userId and U.schoolId = S.schoolId and S.schoolName like '%${searchText}%'`;
+        select = `select P.postId, P.title, U.nickname, P.likes, P.views, P.tbImgURL, P.regTime, P.upTime, S.schoolName from Post P, User U, School S where P.writerId = U.userId and U.schoolId = S.schoolId and S.schoolName like '%${searchText}%'`;
         break;
       default:
         resolve(false);
@@ -176,7 +176,7 @@ const searchDetailPost = (postId) => new Promise((resolve) => {
       }
     });
 
-    const secondQuery = `select P.title, U.nickname, P.apiId, P.likes, P.views, P.imgURL, P.regTime, S.region, S.schoolName
+    const secondQuery = `select P.title, U.nickname, P.apiId, P.likes, P.views, P.imgURL, P.regTime, P.upTime, S.region, S.schoolName
         from Post P, User U, School S
         where P.writerId = U.userId and U.schoolId = S.schoolId and postId = ${postId};`;
     logger.debug(secondQuery);
@@ -282,13 +282,14 @@ const likeOrNotLikePost = (email, postId) => new Promise((resolve) => {
       }
       resolve(true);
     });
+    connection.release();
   });
 });
 
 const updateTitle = (email, postId, title) => new Promise((resolve) => {
   db((connection) => {
     const query = `update Post
-        set title = '${title}'
+        set title = '${title}', upTime = now()
         where postId = '${postId}' and writerId = (select userId from User where email = '${email}');`;
     logger.debug(query);
     connection.query(query, (err) => {
@@ -305,7 +306,7 @@ const updateTitle = (email, postId, title) => new Promise((resolve) => {
 const updateImage = (email, postId, tbImgURL, imgURL) => new Promise((resolve) => {
   db((connection) => {
     const query = `update Post
-        set tbImgURL = '${tbImgURL}', imgURL = '${imgURL}'
+        set tbImgURL = '${tbImgURL}', imgURL = '${imgURL}', upTime = now()
         where postId = '${postId}' and writerId = (select userId from User where email = '${email}');`;
     logger.debug(query);
     connection.query(query, (err) => {
