@@ -73,7 +73,7 @@ const getAwardPosts = (index) => new Promise((resolve) => {
 
 const getTop10Schools = () => new Promise((resolve) => {
   db((connection) => {
-    const query = `select S.region, S.schoolName, sum(P.views) sumOfViews, count(*) sumOfPosts
+    const query = `select S.region, S.schoolName, sum(P.views) sumOfViews, count(*) sumOfPosts, S.address
         from post P, user U, school S
         where P.writerId = U.userId and U.schoolId = S.schoolId
         group by(U.schoolId)
