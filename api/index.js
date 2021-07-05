@@ -1,17 +1,12 @@
 const express = require('express');
 
 const router = express.Router();
-const testController = require('./controller');
-
-// test
-router.get('/', testController.serverTest);
-router.get('/test/jwt/get', testController.jwtGetTest);
-router.post('/test/jwt/post', testController.jwtPostTest);
 
 // services
 const userController = require('./user_controller');
 const postController = require('./post_controller');
 const schoolController = require('./school_controller');
+const creatureController = require('./creature_controller');
 
 // User
 router.get('/check', userController.signUpCheck);
@@ -35,5 +30,10 @@ router.delete('/delete/:postId', postController.deletePost);
 
 // School
 router.get('/school/:schoolName', schoolController.searchSchool);
+router.get('/mySchool', schoolController.getMySchoolInfo);
+
+// Creature
+router.get('/creature', creatureController.searchCreature);
+router.get('/creature/detail', creatureController.searchDetail);
 
 module.exports = router;
