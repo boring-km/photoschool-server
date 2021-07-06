@@ -19,14 +19,14 @@ const isIncludeEmail = (email) => new Promise((resolve) => {
 
 const findNickName = (email) => new Promise((resolve) => {
   db((connection) => {
-    const query = `select nickname from User where email = '${email}';`;
+    const query = `select nickname, isAdmin from User where email = '${email}';`;
     logger.debug(query);
     connection.query(query, (err, results) => {
       if (err) {
         logger.error(`findNickName: ${err}`);
         throw err;
       }
-      resolve(results[0].nickname);
+      resolve(results[0]);
     });
   });
 });

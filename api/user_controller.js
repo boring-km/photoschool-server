@@ -20,7 +20,7 @@ const getUserNickName = async (req, res) => {
     const verifyResult = await verify(req);
     if (verifyResult) {
       const result = await service.findNickName(verifyResult);
-      res.json({ nickname: result });
+      res.json({ nickname: result.nickname, isAdmin: result.isAdmin });
     } else {
       res.json(401).json({ error: 'Token Error!' });
     }
