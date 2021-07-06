@@ -7,6 +7,7 @@ const userController = require('./user_controller');
 const postController = require('./post_controller');
 const schoolController = require('./school_controller');
 const creatureController = require('./creature_controller');
+const manageController = require('./manage_controller');
 
 // User
 router.get('/check', userController.signUpCheck);
@@ -24,9 +25,14 @@ router.get('/post/detail/:postId', postController.searchDetail);
 router.get('/check/like/:postId', postController.checkLike);
 router.post('/register/post', postController.registerPost);
 router.post('/post/like', postController.likeOrNotLikePost);
-router.patch('/update/title', postController.updateTitle);
-router.patch('/update/image', postController.updateImage);
-router.delete('/delete/:postId', postController.deletePost);
+
+// Post Management
+router.patch('/update/title', manageController.updateTitle);
+router.patch('/update/image', manageController.updateImage);
+router.delete('/delete/:postId', manageController.deletePost);
+router.get('/admin/posts/:index', manageController.getNotApprovedPosts);
+router.post('/admin/approve', manageController.approvePost);
+router.post('/admin/reject', manageController.rejectPost);
 
 // School
 router.get('/school/:schoolName', schoolController.searchSchool);

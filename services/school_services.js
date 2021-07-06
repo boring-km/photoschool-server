@@ -31,6 +31,7 @@ const getMySchoolInfo = (email) => new Promise((resolve) => {
         resolve(false);
       }
     });
+    connection.release();
   });
 });
 

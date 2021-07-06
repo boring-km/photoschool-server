@@ -117,7 +117,7 @@ const getSearchedPosts = (searchType, sortType, searchText, index) => new Promis
         select = `select P.postId, P.title, U.nickname, P.likes, P.views, P.tbImgURL, P.regTime, P.upTime, S.schoolName from Post P, User U, School S where title like '%${searchText}%'`;
         break;
       case 'nickname':
-        select = `select P.postId, P.title, U.nickname, P.likes, P.views, P.tbImgURL, P.regTime, P.upTime, S.schoolName from Post P, User U, School S where U.nickname like '%${searchText}%'`;
+        select = `select P.postId, P.title, U.nickname, P.likes, P.views, P.tbImgURL, P.regTime, P.upTime, S.schoolName from Post P, User U, School S where U.nickname = '${searchText}'`;
         break;
       case 'school':
         select = `select P.postId, P.title, U.nickname, P.likes, P.views, P.tbImgURL, P.regTime, P.upTime, S.schoolName from Post P, User U, School S where S.schoolName like '%${searchText}%'`;
@@ -202,6 +202,7 @@ const checkDoLikeBefore = (email, postId) => new Promise((resolve) => {
       }
       resolve(results[0].count === 1);
     });
+    connection.release();
   });
 });
 
@@ -286,56 +287,6 @@ const likeOrNotLikePost = (email, postId) => new Promise((resolve) => {
   });
 });
 
-const updateTitle = (email, postId, title) => new Promise((resolve) => {
-  db((connection) => {
-    const query = `update Post
-        set title = '${title}', upTime = now(), isApproved = false
-        where postId = '${postId}' and writerId = (select userId from User where email = '${email}');`;
-    logger.debug(query);
-    connection.query(query, (err) => {
-      if (err) {
-        logger.error(`updateTitle: ${err}`);
-        throw err;
-      }
-      resolve(true);
-    });
-    connection.release();
-  });
-});
-
-const updateImage = (email, postId, tbImgURL, imgURL) => new Promise((resolve) => {
-  db((connection) => {
-    const query = `update Post
-        set tbImgURL = '${tbImgURL}', imgURL = '${imgURL}', upTime = now(), isApproved = false
-        where postId = '${postId}' and writerId = (select userId from User where email = '${email}');`;
-    logger.debug(query);
-    connection.query(query, (err) => {
-      if (err) {
-        logger.error(`updateImage: ${err}`);
-        throw err;
-      }
-      resolve(true);
-    });
-    connection.release();
-  });
-});
-
-const deletePost = (email, postId) => new Promise((resolve) => {
-  db((connection) => {
-    const query = `delete from Post
-        where postId = '${postId}' and writerId = (select userId from User where email = '${email}');`;
-    logger.debug(query);
-    connection.query(query, (err) => {
-      if (err) {
-        logger.error(`deletePost: ${err}`);
-        throw err;
-      }
-      resolve(true);
-    });
-    connection.release();
-  });
-});
-
 module.exports = {
   getMySchoolName,
   getMyPosts,
@@ -348,7 +299,4 @@ module.exports = {
   checkDoLikeBefore,
   registerPost,
   likeOrNotLikePost,
-  updateTitle,
-  updateImage,
-  deletePost,
 };
