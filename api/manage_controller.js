@@ -1,5 +1,7 @@
 const verify = require('../auth/token_verify');
 const service = require('../services/manage_services');
+const pushService = require('../services/push_services');
+const logger = require('../config/winston');
 
 const updateTitle = async (req, res) => {
   try {
@@ -61,12 +63,15 @@ const approvePost = async (req, res) => {
     const verifyResult = await verify(req);
     const { postId } = req.body;
     if (verifyResult) {
-      const result = { result: await service.approvePost(verifyResult, postId) };
+      const approvalResult = await service.approvePost(verifyResult, postId);
+      const pushResult = await pushService.notifyApproval(approvalResult, postId);
+      const result = { result: pushResult };
       res.json(result);
     } else {
       res.status(401).json({ error: 'Token Error!' });
     }
   } catch (err) {
+    logger.error(err);
     res.status(500).json({ error: 'Server Error!' });
   }
 };
@@ -76,12 +81,15 @@ const rejectPost = async (req, res) => {
     const verifyResult = await verify(req);
     const { postId } = req.body;
     if (verifyResult) {
-      const result = { result: await service.rejectPost(verifyResult, postId) };
+      const rejectResult = await service.rejectPost(verifyResult, postId);
+      const pushResult = await pushService.notifyApproval(!rejectResult, postId);
+      const result = { result: pushResult };
       res.json(result);
     } else {
       res.status(401).json({ error: 'Token Error!' });
     }
   } catch (err) {
+    logger.error(err);
     res.status(500).json({ error: 'Server Error!' });
   }
 };

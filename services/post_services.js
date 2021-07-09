@@ -18,7 +18,7 @@ const getMySchoolName = (email) => new Promise((resolve) => {
 
 const getMyPosts = (email, index) => new Promise((resolve) => {
   db((connection) => {
-    const query = `select P.postId, P.title, P.likes, P.views, P.tbImgURL, P.regTime, P.upTime, P.isApproved
+    const query = `select P.postId, P.title, P.likes, P.views, P.tbImgURL, P.regTime, P.upTime, P.isApproved, P.isRejected
         from Post P, User U 
         where P.writerId = U.userId and U.email = '${email}'
         limit 9 offset ${index * 9}`;
