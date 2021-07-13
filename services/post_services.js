@@ -77,7 +77,7 @@ const getTop10Schools = () => new Promise((resolve) => {
         from post P, user U, school S
         where P.writerId = U.userId and U.schoolId = S.schoolId and P.isApproved = true
         group by(U.schoolId)
-        order by sumOfViews desc, sumOfPosts desc limit 10;`;
+        order by sumOfViews desc, sumOfPosts desc;`;
     logger.debug(query);
     connection.query(query, (err, results) => {
       if (err) {
