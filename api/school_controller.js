@@ -39,8 +39,20 @@ const getSchoolRank = async (req, res) => {
   }
 };
 
+const getSchoolRankOriginal = async (req, res) => {
+  try {
+    const result = {
+      topSchools: await service.getSchoolRank(0),
+    };
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: 'Server Error!' });
+  }
+};
+
 module.exports = {
   searchSchool,
   getMySchoolInfo,
   getSchoolRank,
+  getSchoolRankOriginal,
 };

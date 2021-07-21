@@ -146,17 +146,18 @@ const getSearchedPosts = (searchType, sortType, searchText, index) => new Promis
   });
 });
 
-const searchDetailPost = (postId) => new Promise((resolve) => {
+const searchDetailPost = (postId, isApproved) => new Promise((resolve) => {
   db((connection) => {
-    const firstQuery = `update Post set views = views + 1 where postId = ${postId};`;
-    logger.debug(firstQuery);
-    connection.query(firstQuery, (err) => {
-      if (err) {
-        logger.error(`searchDetailPost views: ${err}`);
-        throw err;
-      }
-    });
-
+    if (isApproved) {
+      const firstQuery = `update Post set views = views + 1 where postId = ${postId};`;
+      logger.debug(firstQuery);
+      connection.query(firstQuery, (err) => {
+        if (err) {
+          logger.error(`searchDetailPost views: ${err}`);
+          throw err;
+        }
+      });
+    }
     const secondQuery = `select P.title, U.nickname, P.apiId, P.likes, P.views, P.imgURL, P.regTime, P.upTime, S.region, S.schoolName
         from Post P, User U, School S
         where P.writerId = U.userId and U.schoolId = S.schoolId and postId = ${postId};`;

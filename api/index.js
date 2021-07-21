@@ -30,8 +30,7 @@ router.delete('/delete/:postId', postController.deletePost);
 
 // Post Management
 router.get('/admin/posts/:index', manageController.getNotApprovedPosts);
-router.post('/admin/approve', manageController.approvePost);
-router.post('/admin/reject', manageController.rejectPost);
+router.patch('/admin/approval', manageController.processPostApproval);
 
 // School
 router.get('/school/:schoolName', schoolController.searchSchool);

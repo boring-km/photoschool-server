@@ -73,7 +73,7 @@ const searchDetail = async (req, res) => {
   try {
     const { postId } = req.params;
     const result = {
-      post: await service.searchDetailPost(postId),
+      post: await service.searchDetailPost(postId, true),
     };
     res.json(result);
   } catch (err) {

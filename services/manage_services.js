@@ -16,28 +16,20 @@ const getNotApprovedPosts = (index) => new Promise((resolve) => {
   });
 });
 
-const approvePost = (email, postId) => new Promise((resolve) => {
+const processApproval = (email, postId, approval) => new Promise((resolve) => {
+  let query = '';
+  if (approval === 'approve') {
+    query = `update Post set isApproved = true, isRejected = false where postId = ${postId} and true = (select if (isAdmin = true, true, false) from User where email = '${email}');`;
+  } else if (approval === 'reject') {
+    query = `update Post set isApproved = false, isRejected = true where postId = ${postId} and true = (select if (isAdmin = true, true, false) from User where email = '${email}');`;
+  } else {
+    resolve(false);
+  }
   db((connection) => {
-    const query = `update Post set isApproved = true, isRejected = false where postId = ${postId} and true = (select if (isAdmin = true, true, false) from User where email = '${email}');`;
     logger.debug(query);
     connection.query(query, (err) => {
       if (err) {
-        logger.error(`approvePost: ${err}`);
-        throw err;
-      }
-      resolve(true);
-    });
-    connection.release();
-  });
-});
-
-const rejectPost = (email, postId) => new Promise((resolve) => {
-  db((connection) => {
-    const query = `update Post set isApproved = false, isRejected = true where postId = ${postId} and true = (select if (isAdmin = true, true, false) from User where email = '${email}');`;
-    logger.debug(query);
-    connection.query(query, (err) => {
-      if (err) {
-        logger.error(`rejectPost: ${err}`);
+        logger.error(`processApproval: ${err}`);
         throw err;
       }
       resolve(true);
@@ -48,6 +40,5 @@ const rejectPost = (email, postId) => new Promise((resolve) => {
 
 module.exports = {
   getNotApprovedPosts,
-  approvePost,
-  rejectPost,
+  processApproval,
 };
