@@ -35,7 +35,28 @@ const getMySchoolInfo = (email) => new Promise((resolve) => {
   });
 });
 
+const getSchoolRank = (index) => new Promise((resolve) => {
+  db((connection) => {
+    const query = `select S.region, S.schoolName, sum(P.views) sumOfViews, count(*) sumOfPosts, S.address
+        from post P, user U, school S
+        where P.writerId = U.userId and U.schoolId = S.schoolId and P.isApproved = true
+        group by(U.schoolId)
+        order by sumOfViews desc, sumOfPosts desc
+        limit 20 offset ${index * 20};`;
+    logger.debug(query);
+    connection.query(query, (err, results) => {
+      if (err) {
+        logger.error(`getSchoolRank: ${err}`);
+        throw err;
+      }
+      resolve(results);
+    });
+    connection.release();
+  });
+});
+
 module.exports = {
   searchSchoolName,
   getMySchoolInfo,
+  getSchoolRank,
 };

@@ -18,18 +18,17 @@ router.post('/register/user', userController.registerUser);
 router.get('/mypost/:index', postController.getMyActivities);
 router.get('/others/:apiId/:index', postController.getPostsByApiId);
 router.get('/awards/:index', postController.getAwardPosts);
-router.get('/rank', postController.getSchoolRank);
 router.get('/post/all/:index', postController.getAllPosts);
 router.get('/post/:searchType/:sortType/:searchText/:index', postController.searchPosts);
 router.get('/post/detail/:postId', postController.searchDetail);
 router.get('/check/like/:postId', postController.checkLike);
 router.post('/register/post', postController.registerPost);
 router.post('/post/like', postController.likeOrNotLikePost);
+router.patch('/update/title', postController.updateTitle);
+router.patch('/update/image', postController.updateImage);
+router.delete('/delete/:postId', postController.deletePost);
 
 // Post Management
-router.patch('/update/title', manageController.updateTitle);
-router.patch('/update/image', manageController.updateImage);
-router.delete('/delete/:postId', manageController.deletePost);
 router.get('/admin/posts/:index', manageController.getNotApprovedPosts);
 router.post('/admin/approve', manageController.approvePost);
 router.post('/admin/reject', manageController.rejectPost);
@@ -37,6 +36,7 @@ router.post('/admin/reject', manageController.rejectPost);
 // School
 router.get('/school/:schoolName', schoolController.searchSchool);
 router.get('/mySchool', schoolController.getMySchoolInfo);
+router.get('/rank/:index', schoolController.getSchoolRank);
 
 // Creature
 router.get('/creature', creatureController.searchCreature);

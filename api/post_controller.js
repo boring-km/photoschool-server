@@ -43,17 +43,6 @@ const getAwardPosts = async (req, res) => {
   }
 };
 
-const getSchoolRank = async (req, res) => {
-  try {
-    const result = {
-      topSchools: await service.getTop10Schools(),
-    };
-    res.json(result);
-  } catch (err) {
-    res.status(500).json({ error: 'Server Error!' });
-  }
-};
-
 const getAllPosts = async (req, res) => {
   try {
     const { index } = req.params;
@@ -137,15 +126,62 @@ const likeOrNotLikePost = async (req, res) => {
   }
 };
 
+const updateTitle = async (req, res) => {
+  try {
+    const verifyResult = await verify(req);
+    const { postId, title } = req.body;
+    if (verifyResult) {
+      const result = { result: await service.updateTitle(verifyResult, postId, title) };
+      res.json(result);
+    } else {
+      res.status(401).json({ error: 'Token Error!' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Server Error!' });
+  }
+};
+
+const updateImage = async (req, res) => {
+  try {
+    const verifyResult = await verify(req);
+    const { postId, tbImgURL, imgURL } = req.body;
+    if (verifyResult) {
+      const result = { result: await service.updateImage(verifyResult, postId, tbImgURL, imgURL) };
+      res.json(result);
+    } else {
+      res.status(401).json({ error: 'Token Error!' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Server Error!' });
+  }
+};
+
+const deletePost = async (req, res) => {
+  try {
+    const verifyResult = await verify(req);
+    const { postId } = req.params;
+    if (verifyResult) {
+      const result = { result: await service.deletePost(verifyResult, postId) };
+      res.json(result);
+    } else {
+      res.status(401).json({ error: 'Token Error!' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Server Error!' });
+  }
+};
+
 module.exports = {
   getMyActivities,
   getPostsByApiId,
   getAwardPosts,
-  getSchoolRank,
   getAllPosts,
   searchPosts,
   searchDetail,
   checkLike,
   registerPost,
   likeOrNotLikePost,
+  updateTitle,
+  updateImage,
+  deletePost,
 };

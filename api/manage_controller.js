@@ -3,51 +3,6 @@ const service = require('../services/manage_services');
 const pushService = require('../services/push_services');
 const logger = require('../config/winston');
 
-const updateTitle = async (req, res) => {
-  try {
-    const verifyResult = await verify(req);
-    const { postId, title } = req.body;
-    if (verifyResult) {
-      const result = { result: await service.updateTitle(verifyResult, postId, title) };
-      res.json(result);
-    } else {
-      res.status(401).json({ error: 'Token Error!' });
-    }
-  } catch (err) {
-    res.status(500).json({ error: 'Server Error!' });
-  }
-};
-
-const updateImage = async (req, res) => {
-  try {
-    const verifyResult = await verify(req);
-    const { postId, tbImgURL, imgURL } = req.body;
-    if (verifyResult) {
-      const result = { result: await service.updateImage(verifyResult, postId, tbImgURL, imgURL) };
-      res.json(result);
-    } else {
-      res.status(401).json({ error: 'Token Error!' });
-    }
-  } catch (err) {
-    res.status(500).json({ error: 'Server Error!' });
-  }
-};
-
-const deletePost = async (req, res) => {
-  try {
-    const verifyResult = await verify(req);
-    const { postId } = req.params;
-    if (verifyResult) {
-      const result = { result: await service.deletePost(verifyResult, postId) };
-      res.json(result);
-    } else {
-      res.status(401).json({ error: 'Token Error!' });
-    }
-  } catch (err) {
-    res.status(500).json({ error: 'Server Error!' });
-  }
-};
-
 const getNotApprovedPosts = async (req, res) => {
   try {
     const { index } = req.params;
@@ -95,9 +50,6 @@ const rejectPost = async (req, res) => {
 };
 
 module.exports = {
-  updateTitle,
-  updateImage,
-  deletePost,
   getNotApprovedPosts,
   approvePost,
   rejectPost,

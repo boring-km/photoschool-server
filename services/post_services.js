@@ -71,25 +71,6 @@ const getAwardPosts = (index) => new Promise((resolve) => {
   });
 });
 
-const getTop10Schools = () => new Promise((resolve) => {
-  db((connection) => {
-    const query = `select S.region, S.schoolName, sum(P.views) sumOfViews, count(*) sumOfPosts, S.address
-        from post P, user U, school S
-        where P.writerId = U.userId and U.schoolId = S.schoolId and P.isApproved = true
-        group by(U.schoolId)
-        order by sumOfViews desc, sumOfPosts desc;`;
-    logger.debug(query);
-    connection.query(query, (err, results) => {
-      if (err) {
-        logger.error(`getTop10Schools: ${err}`);
-        throw err;
-      }
-      resolve(results);
-    });
-    connection.release();
-  });
-});
-
 const getAllPosts = (index) => new Promise((resolve) => {
   db((connection) => {
     const query = `select P.postId, P.title, U.nickname, P.likes, P.views, P.tbImgURL, P.regTime, P.upTime, S.schoolName
@@ -287,16 +268,76 @@ const likeOrNotLikePost = (email, postId) => new Promise((resolve) => {
   });
 });
 
+const updateTitle = (email, postId, title) => new Promise((resolve) => {
+  db((connection) => {
+    const query = `update Post
+        set title = '${title}', upTime = now(), isApproved = false, isRejected = false
+        where postId = '${postId}' and writerId = (select userId from User where email = '${email}');`;
+    logger.debug(query);
+    connection.query(query, (err) => {
+      if (err) {
+        logger.error(`updateTitle: ${err}`);
+        throw err;
+      }
+      resolve(true);
+    });
+    connection.release();
+  });
+});
+
+const updateImage = (email, postId, tbImgURL, imgURL) => new Promise((resolve) => {
+  db((connection) => {
+    const query = `update Post
+        set tbImgURL = '${tbImgURL}', imgURL = '${imgURL}', upTime = now(), isApproved = false, isRejected = false
+        where postId = '${postId}' and writerId = (select userId from User where email = '${email}');`;
+    logger.debug(query);
+    connection.query(query, (err) => {
+      if (err) {
+        logger.error(`updateImage: ${err}`);
+        throw err;
+      }
+      resolve(true);
+    });
+    connection.release();
+  });
+});
+
+const deletePost = (email, postId) => new Promise((resolve) => {
+  db((connection) => {
+    const firstQuery = `delete from Post
+        where postId = '${postId}' and writerId = (select userId from User where email = '${email}');`;
+    logger.debug(firstQuery);
+    connection.query(firstQuery, (err) => {
+      if (err) {
+        logger.error(`deletePost: ${err}`);
+        throw err;
+      }
+    });
+    const secondQuery = `delete from LikeRecord where postId = ${postId};`;
+    logger.debug(secondQuery);
+    connection.query(secondQuery, (err) => {
+      if (err) {
+        logger.error(`deletePost LikeRecord: ${err}`);
+        throw err;
+      }
+      resolve(true);
+    });
+    connection.release();
+  });
+});
+
 module.exports = {
   getMySchoolName,
   getMyPosts,
   getPostsByApi,
   getAwardPosts,
-  getTop10Schools,
   getAllPosts,
   getSearchedPosts,
   searchDetailPost,
   checkDoLikeBefore,
   registerPost,
   likeOrNotLikePost,
+  updateTitle,
+  updateImage,
+  deletePost,
 };
