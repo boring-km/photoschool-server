@@ -205,67 +205,71 @@ const registerPost = (email, apiId, title) => new Promise((resolve) => {
 });
 
 const likeOrNotLikePost = (email, postId) => new Promise((resolve) => {
-  db((connection) => {
+  db((firstConnection) => {
     const firstQuery = `select count(*) as 'count' from User where userId = (select writerId from Post where postId = ${postId}) and email = '${email}';`;
     logger.debug(firstQuery);
-    connection.query(firstQuery, (err, results) => {
-      if (err) {
-        logger.error(`likeOrNotLikePost first: ${err}`);
-        throw err;
+    firstConnection.query(firstQuery, (firstErr, results) => {
+      if (firstErr) {
+        logger.error(`likeOrNotLikePost first: ${firstErr}`);
+        throw firstErr;
       }
       const result = results[0].count > 0;
       if (result) {
         resolve(false);
+      } else {
+        db((connection) => {
+          // likeOrNotLikePost 프로시저 호출
+          const secondQuery = `call likeOrNotLikePost('${email}', ${postId}, @isLikedBy${postId});`;
+          logger.debug(secondQuery);
+          logger.debug('프로시저 likeOrNotLikePost(\n'
+              + '    IN userEmail VARCHAR(254),\n'
+              + '    IN likedPostId INT(10),\n'
+              + '    OUT result TINYINT(1)\n'
+              + ')\n'
+              + 'begin\n'
+              + '    declare foundId INT(10);\n'
+              + '    declare userIdResult INT(10) default 0;\n'
+              + '# 해당 userId 찾기\n'
+              + '    select userId\n'
+              + '    into foundId\n'
+              + '    from User\n'
+              + '    where email = userEmail;\n'
+              + '# 이미 좋아요를 누른 사용자인지 확인\n'
+              + '    select userId\n'
+              + '    into userIdResult\n'
+              + '    from likerecord\n'
+              + '    where userId = foundId and postId = likedPostId;\n'
+              + '# 좋아요 버튼 toggle \n'
+              + '    if userIdResult = 0 then\n'
+              + '        insert into likerecord(userId, postId) values(foundId, likedPostId);\n'
+              + '        update Post set likes = likes + 1 where postId = likedPostId;\n'
+              + '        set result = 1;\n'
+              + '    else\n'
+              + '        delete from likerecord where postId = likedPostId and userId = foundId;\n'
+              + '        update Post set likes = likes - 1 where postId = likedPostId;\n'
+              + '        set result = 0;\n'
+              + '    end if;\n'
+              + 'end$$');
+          connection.query(secondQuery, (err) => {
+            if (err) {
+              logger.error(`likeOrNotLikePost: ${err}`);
+              throw err;
+            }
+          });
+          const thirdQuery = `select @isLikedBy${postId} as 'result';`;
+          logger.debug(thirdQuery);
+          connection.query(thirdQuery, (err) => {
+            if (err) {
+              logger.error(`likeOrNotLikePost result: ${err}`);
+              throw err;
+            }
+            resolve(true);
+          });
+          connection.release();
+        });
       }
+      firstConnection.release();
     });
-    // likeOrNotLikePost 프로시저 호출
-    const secondQuery = `call likeOrNotLikePost('${email}', ${postId}, @isLikedBy${postId});`;
-    logger.debug(secondQuery);
-    logger.debug('프로시저 likeOrNotLikePost(\n'
-               + '    IN userEmail VARCHAR(254),\n'
-               + '    IN likedPostId INT(10),\n'
-               + '    OUT result TINYINT(1)\n'
-               + ')\n'
-               + 'begin\n'
-               + '    declare foundId INT(10);\n'
-               + '    declare userIdResult INT(10) default 0;\n'
-               + '# 해당 userId 찾기\n'
-               + '    select userId\n'
-               + '    into foundId\n'
-               + '    from User\n'
-               + '    where email = userEmail;\n'
-               + '# 이미 좋아요를 누른 사용자인지 확인\n'
-               + '    select userId\n'
-               + '    into userIdResult\n'
-               + '    from likerecord\n'
-               + '    where userId = foundId and postId = likedPostId;\n'
-               + '# 좋아요 버튼 toggle \n'
-               + '    if userIdResult = 0 then\n'
-               + '        insert into likerecord(userId, postId) values(foundId, likedPostId);\n'
-               + '        update Post set likes = likes + 1 where postId = likedPostId;\n'
-               + '        set result = 1;\n'
-               + '    else\n'
-               + '        delete from likerecord where postId = likedPostId and userId = foundId;\n'
-               + '        update Post set likes = likes - 1 where postId = likedPostId;\n'
-               + '        set result = 0;\n'
-               + '    end if;\n'
-               + 'end$$');
-    connection.query(secondQuery, (err) => {
-      if (err) {
-        logger.error(`likeOrNotLikePost: ${err}`);
-        throw err;
-      }
-    });
-    const thirdQuery = `select @isLikedBy${postId} as 'result';`;
-    logger.debug(thirdQuery);
-    connection.query(thirdQuery, (err) => {
-      if (err) {
-        logger.error(`likeOrNotLikePost result: ${err}`);
-        throw err;
-      }
-      resolve(true);
-    });
-    connection.release();
   });
 });
 
