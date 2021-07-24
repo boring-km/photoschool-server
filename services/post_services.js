@@ -274,60 +274,113 @@ const likeOrNotLikePost = (email, postId) => new Promise((resolve) => {
 });
 
 const updateTitle = (email, postId, title) => new Promise((resolve) => {
-  db((connection) => {
-    const query = `update Post
+  db((firstConnection) => {
+    const firstQuery = `select count(*) as 'count'
+                        from Award
+                        where postId = ${postId}`;
+    logger.debug(firstQuery);
+    firstConnection.query(firstQuery, (firstError, results) => {
+      if (firstError) {
+        logger.error(`updateTitle Check: ${firstError}`);
+        throw firstError;
+      }
+      if (results[0].count !== 0) { // 우수 게시물은 수정, 삭제 불가
+        resolve(false);
+      } else {
+        db((connection) => {
+          const query = `update Post
         set title = '${title}', upTime = now(), isApproved = false, isRejected = false
         where postId = '${postId}' and writerId = (select userId from User where email = '${email}');`;
-    logger.debug(query);
-    connection.query(query, (err) => {
-      if (err) {
-        logger.error(`updateTitle: ${err}`);
-        throw err;
+          logger.debug(query);
+          connection.query(query, (err) => {
+            if (err) {
+              logger.error(`updateTitle: ${err}`);
+              throw err;
+            }
+            resolve(true);
+          });
+          connection.release();
+        });
       }
-      resolve(true);
     });
-    connection.release();
   });
 });
 
 const updateImage = (email, postId, tbImgURL, imgURL) => new Promise((resolve) => {
-  db((connection) => {
-    const query = `update Post
-        set tbImgURL = '${tbImgURL}', imgURL = '${imgURL}', upTime = now(), isApproved = false, isRejected = false
-        where postId = '${postId}' and writerId = (select userId from User where email = '${email}');`;
-    logger.debug(query);
-    connection.query(query, (err) => {
-      if (err) {
-        logger.error(`updateImage: ${err}`);
-        throw err;
+  db((firstConnection) => {
+    const firstQuery = `select count(*) as 'count'
+                        from Award
+                        where postId = ${postId}`;
+    logger.debug(firstQuery);
+    firstConnection.query(firstQuery, (firstError, results) => {
+      if (firstError) {
+        logger.error(`updateImage Check: ${firstError}`);
+        throw firstError;
       }
-      resolve(true);
+      if (results[0].count !== 0) { // 우수 게시물은 수정, 삭제 불가
+        resolve(false);
+      } else {
+        db((connection) => {
+          const query = `update Post
+                         set tbImgURL   = '${tbImgURL}',
+                             imgURL     = '${imgURL}',
+                             upTime     = now(),
+                             isApproved = false,
+                             isRejected = false
+                         where postId = '${postId}'
+                           and writerId = (select userId from User where email = '${email}');`;
+          logger.debug(query);
+          connection.query(query, (err) => {
+            if (err) {
+              logger.error(`updateImage: ${err}`);
+              throw err;
+            }
+            resolve(true);
+          });
+          connection.release();
+        });
+      }
+      firstConnection.release();
     });
-    connection.release();
   });
 });
 
 const deletePost = (email, postId) => new Promise((resolve) => {
-  db((connection) => {
-    const firstQuery = `delete from Post
-        where postId = '${postId}' and writerId = (select userId from User where email = '${email}');`;
+  db((firstConnection) => {
+    const firstQuery = `select count(*) as 'count' from Award where postId = ${postId}`;
     logger.debug(firstQuery);
-    connection.query(firstQuery, (err) => {
-      if (err) {
-        logger.error(`deletePost: ${err}`);
-        throw err;
+    firstConnection.query(firstQuery, (firstError, results) => {
+      if (firstError) {
+        logger.error(`deletePost Check: ${firstError}`);
+        throw firstError;
+      }
+      if (results[0].count !== 0) { // 우수 게시물은 수정, 삭제 불가
+        resolve(false);
+      } else {
+        db((connection) => {
+          const secondQuery = `delete from Post
+        where postId = '${postId}' and writerId = (select userId from User where email = '${email}');`;
+          logger.debug(secondQuery);
+          connection.query(secondQuery, (err) => {
+            if (err) {
+              logger.error(`deletePost: ${err}`);
+              throw err;
+            }
+          });
+          const thirdQuery = `delete from LikeRecord where postId = ${postId};`;
+          logger.debug(thirdQuery);
+          connection.query(thirdQuery, (err) => {
+            if (err) {
+              logger.error(`deletePost LikeRecord: ${err}`);
+              throw err;
+            }
+            resolve(true);
+          });
+          connection.release();
+        });
       }
     });
-    const secondQuery = `delete from LikeRecord where postId = ${postId};`;
-    logger.debug(secondQuery);
-    connection.query(secondQuery, (err) => {
-      if (err) {
-        logger.error(`deletePost LikeRecord: ${err}`);
-        throw err;
-      }
-      resolve(true);
-    });
-    connection.release();
+    firstConnection.release();
   });
 });
 
