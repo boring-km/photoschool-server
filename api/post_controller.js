@@ -8,6 +8,7 @@ const getMyActivities = async (req, res) => {
       const { index } = req.params;
       const result = {
         posts: await service.getMyPosts(verifyResult, index),
+        awards: await service.getMyAwards(verifyResult),
         schoolName: await service.getMySchoolName(verifyResult),
       };
       res.json(result);

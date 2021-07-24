@@ -19,13 +19,28 @@ const getMySchoolName = (email) => new Promise((resolve) => {
 const getMyPosts = (email, index) => new Promise((resolve) => {
   db((connection) => {
     const query = `select P.postId, P.title, P.likes, P.views, P.tbImgURL, P.regTime, P.upTime, P.isApproved, P.isRejected
-        from Post P, User U 
+        from Post P, User U
         where P.writerId = U.userId and U.email = '${email}'
         limit 9 offset ${index * 9}`;
     logger.debug(query);
     connection.query(query, (err, results) => {
       if (err) {
         logger.error(`getMyPosts: ${err}`);
+        throw err;
+      }
+      resolve(results);
+    });
+    connection.release();
+  });
+});
+
+const getMyAwards = (email) => new Promise((resolve) => {
+  db((connection) => {
+    const query = `select * from User U, Post P, Award A where U.email = '${email}' and U.userId = P.writerId and P.postId = A.postId;`;
+    logger.debug(query);
+    connection.query(query, (err, results) => {
+      if (err) {
+        logger.error(`getMyAwards: ${err}`);
         throw err;
       }
       resolve(results);
@@ -387,6 +402,7 @@ const deletePost = (email, postId) => new Promise((resolve) => {
 module.exports = {
   getMySchoolName,
   getMyPosts,
+  getMyAwards,
   getPostsByApi,
   getAwardPosts,
   getAllPosts,
