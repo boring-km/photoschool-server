@@ -36,7 +36,7 @@ const getMyPosts = (email, index) => new Promise((resolve) => {
 
 const getMyAwards = (email) => new Promise((resolve) => {
   db((connection) => {
-    const query = `select * from User U, Post P, Award A where U.email = '${email}' and U.userId = P.writerId and P.postId = A.postId;`;
+    const query = `select A.postId, A.awardName, A.month from User U, Post P, Award A where U.email = '${email}' and U.userId = P.writerId and P.postId = A.postId;`;
     logger.debug(query);
     connection.query(query, (err, results) => {
       if (err) {
