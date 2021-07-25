@@ -91,6 +91,7 @@ const getAllPosts = (index) => new Promise((resolve) => {
     const query = `select P.postId, P.title, U.nickname, P.likes, P.views, P.tbImgURL, P.regTime, P.upTime, S.schoolName
         from Post P, User U, School S
         where P.writerId = U.userId and U.schoolId = S.schoolId and P.isApproved = true
+        order by P.regTime desc
         limit 9 offset ${index * 9};`;
     logger.debug(query);
     connection.query(query, (err, results) => {
