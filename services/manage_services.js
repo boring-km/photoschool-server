@@ -3,7 +3,7 @@ const logger = require('../config/winston');
 
 const getNotApprovedPosts = (index) => new Promise((resolve) => {
   db((connection) => {
-    const query = `select * from Post P where isApproved = false and isRejected = false limit 10 offset ${index * 10};`;
+    const query = `select *, (select nickname from user where userId = P.writerId) nickname from Post P where isApproved = false and isRejected = false order by upTime desc limit 10 offset ${index * 10};`;
     logger.debug(query);
     connection.query(query, (err, results) => {
       if (err) {
