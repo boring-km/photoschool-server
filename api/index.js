@@ -8,6 +8,7 @@ const postController = require('./post_controller');
 const schoolController = require('./school_controller');
 const creatureController = require('./creature_controller');
 const manageController = require('./manage_controller');
+const woongjinController = require('./woongjin_controller');
 
 // User
 router.get('/check', userController.signUpCheck);
@@ -40,5 +41,8 @@ router.get('/rank/:index', schoolController.getSchoolRank);
 // Creature
 router.get('/creature', creatureController.searchCreature);
 router.get('/creature/detail', creatureController.searchDetail);
+
+// WoongJin Dictionary
+router.get('/wjPedia/detail/:pid', woongjinController.searchDetail);
 
 module.exports = router;
